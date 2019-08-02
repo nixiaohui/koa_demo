@@ -15,6 +15,12 @@ const getItems = async (ctx, next) => {
       include: [{
         model: models.Menu,
         attributes: ['title']
+      },{
+        model: models.Operation,
+        attributes: ['tag']
+      }, {
+        model: models.Element,
+        attributes: ['tag']
       }],
       limit: parseInt(count),
       offset
