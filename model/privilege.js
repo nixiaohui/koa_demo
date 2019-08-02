@@ -22,9 +22,9 @@ module.exports = (sequelize, DataTypes) => {
     comments: '权限总表'
   })
   Privilege.associate = function(models) {
-    models.Privilege.belongsToMany(models.Menu, {through: 'privilege_menus'})
-    models.Privilege.belongsToMany(models.Element, {through: 'privilege_elements'})
-    models.Privilege.belongsToMany(models.Operation, {through: 'privilege_operations'})
+    models.Privilege.hasOne(models.Menu)
+    models.Privilege.hasOne(models.Element)
+    models.Privilege.hasOne(models.Operation)
   }
 
   return Privilege

@@ -11,29 +11,23 @@ const getItems = async (ctx, next) => {
   let offset = (currentPage - 1) * count
   try {
     const privileges = await models.Privilege.findAndCountAll({
-      attributes: ['id', 'type'],
+      attributes: ['id', 'privilege_type'],
       include: [{
         model: models.Menu,
-        as: 'menu',
         attributes: ['title']
       }],
       limit: parseInt(count),
       offset
     })
-    console.log(privileges)
+    body.code = 1
+    body.message = '获取菜单成功'
+    body.count = privileges.count
+    body.privilege_items = privileges.rows
   } catch (error) {
-    console.log(error.message)
-    ctx.body = {
-      code: -1
-    }
+    body.code = -9
+    body.message = `数据库查询错误：${error.message}`
   }
-  console.log('bb')
-  ctx.body = {
-    code: 1,
-    message: '获取菜单成功',
-    count: privileges.count,
-    privilege_items: privileges.rows
-  }
+  ctx.body = body
 }
 
 const deleteItem = async (ctx, next) => {

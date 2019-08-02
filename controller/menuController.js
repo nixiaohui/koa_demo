@@ -1,8 +1,5 @@
 const models = require('../model')
-const body = {
-  code: 0,
-  message: ''
-}
+
 const getItems = async (ctx, next) => {
   let currentPage = ctx.query.page || 1
   let count = ctx.query.results || 10
@@ -48,15 +45,23 @@ const deleteItem = async (ctx, next) => {
 }
 
 const editItem = async (ctx, next) => {
+  const body = {
+    code: 0,
+    message: ''
+  }
   const id = ctx.params.id
   const newItem = await genNewItem(ctx)
+  if (!newItem) {
+    body.code = -1
+    body.message = '菜单无法创建, 缺少参数'
+  }
   const match = await matchItemById(id)
   if (!match) {
     body.code = -2
     body.message = '修改菜单失败，修改的菜单不存在'
   }
   const matchItem = await matchItemByTitle(newItem.title)
-  if ( matchItem || matchItem.id !== id) {
+  if ( matchItem && matchItem.id !== parseInt(id)) {
     body.code = -3
     body.message = '修改菜单失败， 菜单标题已存在'
   }
@@ -71,7 +76,7 @@ const editItem = async (ctx, next) => {
       body.message = '更新成功'
       body.menu_item = item.title
     } catch (error) {
-      body.code = -9,
+      body.code = -9
       body.message = `更新错误, ${error.message}`
     }
   }
@@ -79,21 +84,29 @@ const editItem = async (ctx, next) => {
 }
 
 const addItem = async (ctx, next) => {
+  const body = {
+    code: 0,
+    message: ''
+  }
   const newItem = await genNewItem(ctx)
+  if (!newItem) {
+    body.code = -1
+    body.message = '菜单无法创建, 缺少参数'
+  }
   if (await matchItemByTitle(newItem.title)) {
-    body.code = -3,
+    body.code = -3
     body.message = '菜单无法创建, 标题已存在...'
   }
   if (body.code === 0) {
     try {
       const newMenuItem = await models.Menu.create(newItem)
       const newPrivilegeItem = await models.Privilege.create({privilege_type: 'MENU'})
-      newMenuItem.addPrivilege(newPrivilegeItem)
+      newMenuItem.setPrivilege(newPrivilegeItem)
       body.code = 1
-      body.message = '菜单添加成功',
+      body.message = '菜单添加成功'
       body.menu_item = newMenuItem.title
     } catch (error) {
-      body.code = -9,
+      body.code = -9
       body.message = `菜单添加失败, ${error.message}`
     }
   }
@@ -113,11 +126,7 @@ const genNewItem = async (ctx) => {
     sort_id = sort_id ? parseInt(sort_id) : 0
     parent_id = parent_id ? parseInt(parent_id) : null
     return { title, url, sort_id, parent_id, icon }
-  } else {
-    body.code = -1
-    body.message = '菜单无法创建, 缺少参数'
-    return {}
-  }
+  } 
 }
 
 const matchItemByTitle = async (itemTitle) => {

@@ -8,7 +8,7 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
       autoIncrement: true
     },
-    title: {
+    tag: {
       type: DataTypes.STRING,
       allowNull: false,
       unique: true
@@ -36,7 +36,7 @@ module.exports = (sequelize, DataTypes) => {
     timestamps: true
   })
   Operation.associate = function(models) {
-    models.Operation.belongsToMany(models.Privilege, {through: 'privilege_operations'})
+    models.Operation.belongsTo(models.Privilege)
   }
 
   return Operation

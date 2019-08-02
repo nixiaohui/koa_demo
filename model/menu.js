@@ -36,7 +36,7 @@ module.exports = (sequelize, DataTypes) => {
     comment: '菜单表'
   })
   Menu.associate = function(models) {
-    models.Menu.belongsToMany(models.Privilege, {through: 'privilege_menus'})
+    models.Menu.belongsTo(models.Privilege)
   }
 
   return Menu

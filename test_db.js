@@ -12,4 +12,5 @@ sequelize.sync({force: true}).then(() => {
   console.log('数据库创建成功')
 }).catch((err) => {
   console.log('数据库创建出错')
+  console.log(err.message)
 })
