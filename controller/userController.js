@@ -2,6 +2,21 @@ const multer = require('koa-multer')
 const models = require('../model')
 const { encrypt, decrypt } = require('../utils/crypt.js')
 
+const errorMessage = {
+  FETCH_NONE: '查不到记录',
+  PARAM_SHORT: '缺少参数',
+  ITEM_EXISTED: '已经存在',
+  QUERY_ERR: '查询失败',
+  OTHER: '操作失败'
+}
+
+const successMessage = {
+  ADDED: '添加成功',
+  QUERIED: '查询成功',
+  UPDATED: '更新成功',
+  DELETED: '删除成功'
+}
+
 const addUser = async (ctx, next) => {
   let error = []
   if (ctx.request.body && ctx.request.body.username && ctx.request.body.password && ctx.request.body.email) {
@@ -48,6 +63,26 @@ const addUser = async (ctx, next) => {
       message: '参数不足'
     }
   }
+}
+
+const getItem = async (ctx, next) => {
+  const body = { code: 0, message: ''}
+  const id = parseInt(ctx.params.id)
+  console.log(id)
+  const item = await models.User.findOne({
+    where: {
+      id: id
+    }
+  }).then((res) => {
+    body.message = successMessage.QUERIED
+    body.code = 1
+    return res
+  }).catch((err) => {
+    body.message = errorMessage.QUERY_ERR
+    bdoy.code = -9
+  })
+  body.item = item
+  ctx.body = body
 }
 
 const matchUsername = async (username) => {
@@ -115,6 +150,7 @@ const update = async(ctx, next) => {
 module.exports = {
   index,
   getAll,
+  getItem,
   addUser,
   profile,
   upload,

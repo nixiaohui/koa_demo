@@ -4,6 +4,7 @@ userRouter = new Router()
 
 userRouter.get('/', userController.index)
 userRouter.get('/items', userController.getAll)
+userRouter.get('/item/:id', userController.getItem)
 userRouter.post('/item', userController.addUser)
 userRouter.get('/profile', userController.profile)
 userRouter.post('/upload', userController.upload.single('avatar'), userController.update)

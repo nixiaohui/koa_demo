@@ -130,7 +130,12 @@ const genNewItem = async (ctx) => {
   if (ctx.request.body && ctx.request.body.title) {
     let { title, url, sort_id, parent_id, icon } = ctx.request.body
     sort_id = sort_id ? parseInt(sort_id) : 0
-    parent_id = parent_id ? parseInt(parent_id) : null
+    if (parent_id) {
+      parent_id = parseInt(parent_id)
+      if (parent_id ===0 ) {
+        parent_id = null
+      }
+    }
     return { title, url, sort_id, parent_id, icon }
   } 
 }
