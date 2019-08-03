@@ -147,6 +147,63 @@ const update = async(ctx, next) => {
   }
 }
 
+const updateUserGroup = async (ctx, next) => {
+  const body = {code:0,message:''}
+  const id = ctx.params.id
+  const groups = ctx.request.body.groups
+  const match = await matchItemById(models.User, id)
+  if (!match) {
+    body.code = -1
+    body.message = errorMessage.FETCH_NONE
+  }
+  if (body.code === 0) {
+    try {
+      const res = await createUserGroup(id, groups)
+      if (res.code === 1) {
+        body.code = 1
+        body.message = successMessage.UPDATED
+      } else {
+        body.code = res.code
+        body.message = errorMessage.OTHER
+        console.log(res.message)
+      }
+    }catch(error) {
+      body.code = -9
+      body.message = errorMessage.OTHER
+    }
+  }
+  ctx.body = body
+}
+
+const getUserGroups = async (ctx, next) => {
+  const body = {code:0,message:''}
+  const id = ctx.params.id
+  await models.User.findOne({
+    where: {
+      id: id
+    },
+    include: [
+      {
+        attributes: ['id', 'name'],
+        model: models.Group
+      }
+    ]
+  }).then((res) => {
+     if (res) {
+        body.items = res
+        body.code = 1
+        body.message = successMessage.QUERIED
+     } else {
+       body.code = -1
+       body.message = errorMessage.FETCH_NONE
+     }
+  }).catch((err) => {
+    body.code = -9
+    body.message = errorMessage.OTHER
+  })
+  ctx.body =  body
+}
+
 module.exports = {
   index,
   getAll,
@@ -154,5 +211,39 @@ module.exports = {
   addUser,
   profile,
   upload,
-  update
+  update,
+  updateUserGroup,
+  getUserGroups
+}
+
+const matchItemById = async (model, itemId) => {
+  const item = await model.findOne({
+    // 'attributes': ['id','username'],
+    where: {
+      id: itemId
+    }
+  }).then((result) =>{
+    return result  
+  }).catch((error) =>{
+    console.log(error.message)
+  })
+  return item
+}
+
+const createUserGroup = async (userID, groups) => {
+  const body = { code:0, message:''}
+  await models.User.findOne({
+    where: {
+      id: userID
+    }
+  }).then((res) => {
+    return res.setGroups(groups)
+  }).then((res) => {
+    body.code = 1
+    body.message = res
+  }).catch((err) => {
+    body.code = -9
+    body.message = err.message
+  })
+  return body
 }
